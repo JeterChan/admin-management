@@ -1,11 +1,17 @@
 # Use Node.js 18 LTS as base image
 FROM node:18-alpine
 
+# 安裝 git
+RUN apk add --no-cache git curl
+
 # Set working directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
+
+# clone shared models repository
+RUN git clone https://github.com/your-org/fruit-web-models.git shared/models
 
 # Install dependencies
 RUN npm ci --only=production
@@ -26,7 +32,7 @@ EXPOSE 5001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5001/ || exit 1
+  CMD curl -f http://localhost:5001/Health || exit 1
 
 # Start the application
 CMD ["npm", "start"]

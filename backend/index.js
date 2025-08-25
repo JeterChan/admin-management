@@ -70,13 +70,32 @@ app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running!' });
 });
 
+// 健康檢查端點
+app.get('/health', (req, res) => {
+  try {
+    const healthCheck = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      service: 'admin-management', // 🔥 不同的服務名稱
+      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    };
+    
+    res.status(200).json(healthCheck);
+  } catch (error) {
+    res.status(503).json({
+      status: 'UNHEALTHY',
+      error: error.message
+    });
+  }
+});
+
 // 404 處理
-// app.use('*', (req, res) => {
-//   res.status(404).json({
-//     status: 'error',
-//     message: '[Admin] 找不到請求的資源'
-//   });
-// });
+app.use('*', (req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: '找不到請求的資源'
+  });
+});
 
 // 全域錯誤處理
 app.use((err, req, res, next) => {

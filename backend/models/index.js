@@ -1,4 +1,4 @@
-const createModels = require('fruit-web-models');
+const createModels = require('../shared/models');
 
 let modelsInstance = null;
 
@@ -8,7 +8,14 @@ const initializeModels = (mongoose) => {
     return modelsInstance;
   }
   
-  modelsInstance = createModels(mongoose);
+  const dbModels = createModels(mongoose);
+
+  // 篩選admin-management需要的models
+  modelsInstance = {
+    Order: dbModels.Order,
+    Admin: dbModels.Admin
+  };
+
   console.log('✅ Models initialized');
   return modelsInstance;
 };
