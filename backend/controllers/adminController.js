@@ -141,44 +141,6 @@ const adminLogout = async (req, res) => {
     }
 };
 
-// 檢查管理員登入狀態
-const checkAdminAuth = async (req, res) => {
-    try {
-        if (!req.session.adminId) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'Not authenticated'
-            });
-        }
-
-        const { Admin } = getModels();
-        const admin = await Admin.findById(req.session.adminId);
-
-        if (!admin) {
-            req.session.destroy();
-            return res.status(401).json({
-                status: 'error',
-                message: 'Admin not found'
-            });
-        }
-
-        return res.status(200).json({
-            status: 'success',
-            data: {
-                adminId: admin._id,
-                email: admin.email
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ [Admin] Auth check error:', error);
-        return res.status(500).json({
-            status: 'error',
-            message: 'Auth check failed'
-        });
-    }
-};
-
 // 創建管理員帳號 (用於初始化)
 const createAdmin = async (req, res) => {
     try {
@@ -235,6 +197,5 @@ module.exports = {
     updateOrderStatus,
     adminLogin,
     adminLogout,
-    checkAdminAuth,
     createAdmin
 };
