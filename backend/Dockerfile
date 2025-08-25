@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # clone shared models repository
-RUN git clone https://github.com/your-org/fruit-web-models.git shared/models
+RUN git clone https://github.com/JeterChan/fruit-web-models.git shared/models
 
 # Install dependencies
 RUN npm ci --only=production
