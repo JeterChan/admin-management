@@ -5,3 +5,8 @@
 # .env
 /frontend/.env.development
 /backend/.env.development
+/frontend/.env
+/backend/.env
+
+# scripts
+/backend/scripts
