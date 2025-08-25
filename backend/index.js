@@ -6,6 +6,9 @@ const { initializeModels } = require('./models');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
+// passport.js
+const passport = require('passport');
+const configurePassport = require('./config/passport');
 
 dotenv.config();
 
@@ -18,7 +21,7 @@ async function initializeApp() {
 
     // 2. 初始化 models
     initializeModels(mongoose);
-    console.log('✅ Models initialized');
+
   } catch (error) {
     console.error('❌ Failed to initialize app:', error);
     process.exit(1);
@@ -52,6 +55,11 @@ app.use(session({
   },
   name: 'admin.sid'
 }));
+
+// passport setting - must be after session middleware
+configurePassport(passport);
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 // Routes
