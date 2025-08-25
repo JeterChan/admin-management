@@ -86,19 +86,25 @@ const adminLogin = (req, res, next) => {
                 });
             }
 
-            // 設定額外的 session 資料 (為了向後相容)
-            req.session.adminId = admin._id;
-            req.session.email = admin.email;
-
-            return res.status(200).json({
-                status: 'success',
-                message: 'Login successful',
-                data: {
-                    adminId: admin._id,
-                    email: admin.email
+            req.session.save((err) => {
+                if(err) {
+                    console.error('❌ [Admin] Session save error:', err);
+                    return res.status(500).json({
+                        status:'error',
+                        message:'Session save failed'
+                    });
                 }
+
+                res.status(200).json({
+                    status: 'success',
+                    message: 'Login successful',
+                    data: {
+                        adminId: admin._id,
+                        email: admin.email
+                    }
+                    });
+                });
             });
-        });
     })(req, res, next);
 };
 

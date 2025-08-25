@@ -28,14 +28,23 @@ const configurePassport = (passport) => {
 
     // Serialize user for session
     passport.serializeUser((admin, done) => {
-        done(null, admin._id);
+        const sessionData = {
+            id: admin._id.toString(),
+            email: admin.email
+        }
+        done(null, sessionData);
     });
 
     // Deserialize user from session
-    passport.deserializeUser(async (id, done) => {
+    passport.deserializeUser(async (sessionData, done) => {
         try {
             const { Admin } = getModels();
-            const admin = await Admin.findById(id).select('-password');
+            const admin = await Admin.findById(sessionData.id).select('-password');
+
+            if(!admin) {
+                return done(null, false);
+            }
+            
             done(null, admin);
         } catch (error) {
             done(error);
