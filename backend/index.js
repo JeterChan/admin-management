@@ -42,7 +42,7 @@ app.use(cors({
 app.use(session({
   secret: process.env.ADMIN_SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     touchAfter: 24 * 3600
