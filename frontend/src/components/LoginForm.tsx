@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Admin Name Input */}
             <div className="space-y-2">
-              <label htmlFor="adminName" className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
                 管理員帳號
               </label>
               <div className="relative">
@@ -56,8 +56,8 @@ const LoginForm: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  id="adminName"
-                  name="adminName"
+                  id="email"
+                  name="email"
                   value={credentials.email}
                   onChange={handleChange}
                   required
