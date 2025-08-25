@@ -66,10 +66,6 @@ const OrderManagement: React.FC = () => {
       const orderData = await response.json();
 
       if (orderData.status === 'success') {
-        // Debug: Log the actual response structure
-        console.log('API Response:', orderData);
-        console.log('First order:', orderData.data[0]);
-        
         // Transform backend data to match frontend interface
         const transformedOrders = orderData.data.map((order: any) => ({
           id: order.orderNumber,
@@ -232,7 +228,7 @@ const OrderManagement: React.FC = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg">
                 <User className="w-5 h-5 text-white" />
-                <span className="text-white font-medium">歡迎, {user?.username}</span>
+                <span className="text-white font-medium">歡迎, {user?.email}</span>
               </div>
               <button 
                 onClick={logout} 
@@ -322,21 +318,32 @@ const OrderManagement: React.FC = () => {
                           <span>收件人</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">數量</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        <div className="flex justify-center space-x-1">
+                          <span>數量</span>
+                        </div>
+                      </th>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         <div className="flex items-center space-x-1">
-                          <DollarSign className="w-4 h-4" />
                           <span>總金額</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">狀態</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        <div className="flex justify-center space-x-1">
+                          <span>狀態</span>
+                        </div>
+                      </th>
                       <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4" />
                           <span>日期</span>
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">操作</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        <div className="flex items-center space-x-1">
+                          <span>操作</span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -361,7 +368,7 @@ const OrderManagement: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
+                          <div className="flex justify-center">
                             <span className="text-sm text-gray-900 font-medium">{getTotalQuantity(order)}</span>
                           </div>
                         </td>
