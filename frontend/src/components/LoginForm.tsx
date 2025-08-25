@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, LogIn, Package } from 'lucide-react';
 
 const LoginForm: React.FC = () => {
-  const [credentials, setCredentials] = useState({ adminName: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -14,7 +14,7 @@ const LoginForm: React.FC = () => {
     setError('');
 
     try {
-      const success = await login(credentials.adminName, credentials.password);
+      const success = await login(credentials.email, credentials.password);
       if (!success) {
         setError('帳號或密碼錯誤');
       }
@@ -58,7 +58,7 @@ const LoginForm: React.FC = () => {
                   type="text"
                   id="adminName"
                   name="adminName"
-                  value={credentials.adminName}
+                  value={credentials.email}
                   onChange={handleChange}
                   required
                   placeholder="輸入你的管理員帳號"
@@ -117,15 +117,6 @@ const LoginForm: React.FC = () => {
               )}
             </button>
           </form>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-blue-800 mb-2">測試帳號</h3>
-          <div className="text-sm text-blue-700 space-y-1">
-            <p>• 帳號: <code className="bg-blue-100 px-2 py-1 rounded">admin</code> 密碼: <code className="bg-blue-100 px-2 py-1 rounded">admin123</code></p>
-            <p>• 帳號: <code className="bg-blue-100 px-2 py-1 rounded">manager</code> 密碼: <code className="bg-blue-100 px-2 py-1 rounded">manager456</code></p>
-          </div>
         </div>
       </div>
     </div>
