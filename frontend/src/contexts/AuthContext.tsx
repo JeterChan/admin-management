@@ -12,7 +12,6 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  checkAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,46 +29,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
-
-  // Check authentication status on app start
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-      const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/auth/check`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.status === 'success') {
-          const authUser: User = {
-            adminId: result.data.adminId,
-            email: result.data.email,
-            role: 'admin'
-          };
-          setUser(authUser);
-        } else {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -128,8 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated,
     loading,
     login,
-    logout,
-    checkAuth
+    logout
   };
 
   return (
