@@ -89,14 +89,6 @@ app.get('/health', (req, res) => {
   }
 });
 
-// 404 處理
-app.use('*', (req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: '找不到請求的資源'
-  });
-});
-
 // 全域錯誤處理
 app.use((err, req, res, next) => {
   const status = err.status || 500;
