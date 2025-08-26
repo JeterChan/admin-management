@@ -46,8 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (response.ok && result.status === 'success') {
         const authUser: User = {
-          adminId: result.data.adminId,
-          email: result.data.email,
+          adminId: result.admin.id,
+          email: result.admin.email,
           role: 'admin'
         };
 
