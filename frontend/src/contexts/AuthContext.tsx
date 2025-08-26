@@ -83,22 +83,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await response.json();
 
       if (response.ok && result.status === 'success') {
-        console.log('✅ Login API successful, now verifying session...');
-        
-        // First set user from login response
         const authUser: Admin = {
           adminId: result.admin.id,
           email: result.admin.email,
           role: 'admin'
         };
+
         setUser(authUser);
-        
-        // Then verify session was created properly by calling checkAuth
-        setTimeout(async () => {
-          console.log('🔍 Verifying session after login...');
-          await checkAuth();
-        }, 100); // Small delay to let cookies be set
-        
         return true;
       } else {
         console.log(result);
