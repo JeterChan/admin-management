@@ -59,13 +59,11 @@ const OrderManagement: React.FC = () => {
         },
       });
 
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! : ${result.message}`);
-      }
-
       const orderData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! : ${orderData.message}`);
+      }
 
       if (orderData.status === 'success') {
         // Transform backend data to match frontend interface
