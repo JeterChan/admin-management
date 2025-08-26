@@ -10,7 +10,7 @@ router.post('/create', adminController.createAdmin); // 用於初始化管理員
 router.get('/check', adminController.checkAuth); // 檢查認證狀態
 
 // 需要身份驗證的路由
-router.get('/orders', adminController.getAllOrders);
+router.get('/orders', requireAdminAuth, adminController.getAllOrders);
 router.patch('/orders/:orderId/status', requireAdminAuth, adminController.updateOrderStatus);
 
 module.exports = router;
