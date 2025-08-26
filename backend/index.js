@@ -14,6 +14,9 @@ dotenv.config();
 
 const app = express();
 
+// 1. 信任反向代理 
+app.set('trust proxy', 1);
+
 async function initializeApp() {
   try {
     // 1. connect database

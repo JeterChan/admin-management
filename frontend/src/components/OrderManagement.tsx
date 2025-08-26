@@ -59,9 +59,10 @@ const OrderManagement: React.FC = () => {
         },
       });
 
-      console.log('Fetch Orders Response:', response);
+      const result = await response.json();
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! : ${await response.json()}`);
+        throw new Error(`HTTP error! : ${result.message}`);
       }
 
       const orderData = await response.json();
