@@ -1,17 +1,11 @@
 # Use Node.js 18 LTS as base image
 FROM node:18-alpine
 
-# 安裝 git
-RUN apk add --no-cache git curl
-
 # Set working directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
-
-# clone shared models repository
-RUN git clone https://github.com/JeterChan/fruit-web-models.git shared/models
 
 # Install dependencies
 RUN npm ci --only=production
