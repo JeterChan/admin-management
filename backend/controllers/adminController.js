@@ -88,6 +88,9 @@ const adminLogin = (req, res, next) => {
                 });
             }
 
+            req.session.adminId = admin._id.toString();
+            req.session.email = admin.email;
+
             console.log('✅ req.logIn successful');
             console.log('🔍 After logIn:');
             console.log('  Session ID:', req.sessionID);

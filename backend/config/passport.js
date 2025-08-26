@@ -28,11 +28,7 @@ const configurePassport = (passport) => {
 
     // Serialize user for session
     passport.serializeUser((admin, done) => {
-        const sessionData = {
-            id: admin._id.toString(),
-            email: admin.email
-        }
-        done(null, sessionData);
+        done(null, admin._id.toString());
     });
 
     // Deserialize user from session
