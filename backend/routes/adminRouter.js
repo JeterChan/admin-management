@@ -7,6 +7,7 @@ const { requireAdminAuth } = require('../middleware/authMiddleware');
 router.post('/login', adminController.adminLogin);
 router.post('/logout', adminController.adminLogout);
 router.post('/create', adminController.createAdmin); // 用於初始化管理員帳號
+router.get('/check', adminController.checkAuth); // 檢查認證狀態
 
 // 需要身份驗證的路由
 router.get('/orders', requireAdminAuth, adminController.getAllOrders);

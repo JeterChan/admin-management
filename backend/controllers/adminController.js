@@ -108,8 +108,6 @@ const adminLogin = (req, res, next) => {
                 }
 
                 console.log('✅ Session saved successfully');
-                console.log('🍪 Response headers about to be sent:');
-                console.log('  Set-Cookie header:', res.getHeaders()['set-cookie']);
 
                 res.json({
                     status: 'success',
@@ -219,11 +217,37 @@ const createAdmin = async (req, res) => {
     }
 };
 
+// 檢查認證狀態
+const checkAuth = async (req, res) => {
+    console.log('\n🔍 CHECK AUTH:');
+    console.log('  Cookie Header:', req.headers.cookie || 'MISSING');
+    console.log('  Session ID:', req.sessionID || 'MISSING');
+    console.log('  Is Authenticated:', req.isAuthenticated());
+    console.log('  User:', req.user ? { id: req.user._id, email: req.user.email } : 'MISSING');
+
+    if (req.isAuthenticated() && req.user) {
+        return res.status(200).json({
+            status: 'success',
+            isAuthenticated: true,
+            admin: {
+                id: req.user._id,
+                email: req.user.email
+            }
+        });
+    } else {
+        return res.status(200).json({
+            status: 'success',
+            isAuthenticated: false,
+            admin: null
+        });
+    }
+};
 
 module.exports = {
     getAllOrders,
     updateOrderStatus,
     adminLogin,
     adminLogout,
-    createAdmin
+    createAdmin,
+    checkAuth
 };
