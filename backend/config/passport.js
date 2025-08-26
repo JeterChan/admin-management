@@ -36,10 +36,10 @@ const configurePassport = (passport) => {
     });
 
     // Deserialize user from session
-    passport.deserializeUser(async (sessionData, done) => {
+    passport.deserializeUser(async (id, done) => {
         try {
             const { Admin } = getModels();
-            const admin = await Admin.findById(sessionData.id).select('-password');
+            const admin = await Admin.findById(id).select('-password');
 
             if(!admin) {
                 return done(null, false);

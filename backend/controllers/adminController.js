@@ -76,6 +76,8 @@ const adminLogin = (req, res, next) => {
             });
         }
 
+        console.log('✅ Passport authentication successful:', admin.email);
+
         // 使用 Passport 登入並建立 session
         req.logIn(admin, (err) => {
             if (err) {
@@ -86,6 +88,13 @@ const adminLogin = (req, res, next) => {
                 });
             }
 
+            console.log('✅ req.logIn successful');
+            console.log('🔍 After logIn:');
+            console.log('  Session ID:', req.sessionID);
+            console.log('  Is Authenticated:', req.isAuthenticated());
+            console.log('  User:', req.user ? req.user.email : 'null');
+            console.log('  Session Passport:', req.session.passport);
+
             req.session.save((err) => {
                 if(err) {
                     console.error('❌ [Admin] Session save error:', err);
@@ -95,16 +104,22 @@ const adminLogin = (req, res, next) => {
                     });
                 }
 
-                res.status(200).json({
+                res.json({
                     status: 'success',
                     message: 'Login successful',
-                    data: {
-                        adminId: admin._id,
+                    admin: {
+                        id: admin._id,
                         email: admin.email
+                    },
+                    debug: {
+                        sessionID: req.sessionID,
+                        isAuthenticated: req.isAuthenticated(),
+                        hasUser: !!req.user,
+                        sessionPassport: req.session.passport
                     }
-                    });
                 });
             });
+        })
     })(req, res, next);
 };
 
