@@ -1,0 +1,3 @@
+[submodule "backend/shared/models"]
+	path = backend/shared/models
+	url = https://github.com/JeterChan/fruit-web-models.git
