@@ -42,7 +42,7 @@ app.use(cors({
 app.use(session({
   secret: process.env.ADMIN_SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     touchAfter: 24 * 3600
@@ -51,7 +51,7 @@ app.use(session({
     maxAge: 8 * 60 * 60 * 1000, // 8 小時（後台工作時間較長）
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    sameSite: 'none'
   },
   name: 'admin.sid'
 }));
