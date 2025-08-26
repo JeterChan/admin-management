@@ -89,6 +89,16 @@ app.get('/health', (req, res) => {
   }
 });
 
+app.get('/api/admin/quick-test', (req, res) => {
+    res.json({
+        hasCookies: !!req.headers.cookie,
+        sessionID: req.sessionID,
+        isAuthenticated: req.isAuthenticated(),
+        userEmail: req.user?.email,
+        message: req.isAuthenticated() ? 'Authentication OK' : 'Not authenticated'
+    });
+});
+
 // 全域錯誤處理
 app.use((err, req, res, next) => {
   const status = err.status || 500;

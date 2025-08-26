@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-interface User {
+interface Admin {
   adminId: string;
   email: string;
   role: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: Admin | null;
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
@@ -25,7 +25,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Admin | null>(null);
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await response.json();
 
       if (response.ok && result.status === 'success') {
-        const authUser: User = {
+        const authUser: Admin = {
           adminId: result.admin.id,
           email: result.admin.email,
           role: 'admin'
