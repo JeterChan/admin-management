@@ -107,6 +107,10 @@ const adminLogin = (req, res, next) => {
                     });
                 }
 
+                console.log('✅ Session saved successfully');
+                console.log('🍪 Response headers about to be sent:');
+                console.log('  Set-Cookie header:', res.getHeaders()['set-cookie']);
+
                 res.json({
                     status: 'success',
                     message: 'Login successful',

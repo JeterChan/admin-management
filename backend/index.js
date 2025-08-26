@@ -49,7 +49,7 @@ app.use(session({
   }),
   cookie: {
     maxAge: 8 * 60 * 60 * 1000, // 8 小時（後台工作時間較長）
-    httpOnly: true,
+    httpOnly: false, // TEMP: Make cookie visible in DevTools
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'none'
   },
