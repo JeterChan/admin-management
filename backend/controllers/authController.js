@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 // admin login
-const adminLogin = async (req, res) => {
+const adminLogin = async (req, res, next) => {
     // use 'local' strategy
     // need to use session:false
     passport.authenticate('local', { session: false }, (err, admin, info) => {
