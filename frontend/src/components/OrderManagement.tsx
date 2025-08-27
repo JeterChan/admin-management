@@ -56,11 +56,12 @@ const OrderManagement: React.FC = () => {
         headers: getAuthHeaders(),
       });
 
-      const orderData = await response.json();
-
       if (!response.ok) {
-        throw new Error(`HTTP error! : ${orderData.message}`);
+        const errorText = await response.text();
+        throw new Error(`Request failed: ${response.status} - ${errorText}`);
       }
+
+      const orderData = await response.json();
 
       if (orderData.status === 'success') {
         // Transform backend data to match frontend interface

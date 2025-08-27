@@ -81,9 +81,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       });
 
+      if(!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Request failed: ${response.status} - ${errorText}`);
+      }
+
       const result = await response.json();
 
-      if (response.ok && result.status === 'success' && result.isAuthenticated) {
+      if (result.status === 'success' && result.isAuthenticated) {
         const authUser: Admin = {
           adminId: result.admin.id,
           email: result.admin.email,
