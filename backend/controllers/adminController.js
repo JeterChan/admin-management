@@ -56,7 +56,22 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
+// 檢查認證狀態 - JWT validation happens in passport middleware
+const checkAuth = async (req, res) => {
+    // If we reach here, the JWT middleware has already validated the token
+    // req.user is set by passport JWT strategy
+    return res.status(200).json({
+        status: 'success',
+        isAuthenticated: true,
+        admin: {
+            id: req.user._id,
+            email: req.user.email
+        }
+    });
+};
+
 module.exports = {
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    checkAuth
 };

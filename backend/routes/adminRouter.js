@@ -3,9 +3,11 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const passport = require("passport");
 
-router.use(passport.authenticate('jwt',{ session: false }));
+// Apply JWT authentication to all routes in this router
+router.use(passport.authenticate('jwt', { session: false }));
 
-// 需要身份驗證的路由
+// All routes here require JWT authentication
+router.get('/check', adminController.checkAuth);
 router.get('/orders', adminController.getAllOrders);
 router.patch('/orders/:orderId/status', adminController.updateOrderStatus);
 

@@ -1,6 +1,7 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { getModels } = require('../models');
 
 // admin login
 const adminLogin = async (req, res, next) => {
@@ -32,9 +33,10 @@ const adminLogin = async (req, res, next) => {
             return res.json({
                 status:'success',
                 admin:{
+                    id: admin._id,
                     email:admin.email,
                 },
-                token: `Bearer ${token}`
+                token: token  // Don't include "Bearer " prefix here
             });
         });
     })(req,res,next);
