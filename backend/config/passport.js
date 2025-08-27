@@ -1,5 +1,8 @@
 const LocalStrategy = require('passport-local').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 const { getModels } = require('../models');
+const { Admin } = getModels();
 
 const configurePassport = (passport) => {
     // local strategy - 登入驗證
@@ -8,7 +11,6 @@ const configurePassport = (passport) => {
         passwordField: 'password'
     }, async (email, password, done) => {
         try {
-            const { Admin } = getModels();
             const admin = await Admin.findOne({ email });
 
             if(!admin) {
@@ -26,26 +28,28 @@ const configurePassport = (passport) => {
         }
     }));
 
-    // Serialize user for session
-    passport.serializeUser((admin, done) => {
-        done(null, admin._id.toString());
-    });
+    // Jwt strategy - API 授權
+    const opts = {};
+    opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken(); // from Authorization header get Bearer Token
+    opts.secretOrKey = process.env.JWT_SECRET;
 
-    // Deserialize user from session
-    passport.deserializeUser(async (id, done) => {
+    passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
-            const { Admin } = getModels();
-            const admin = await Admin.findById(id).select('-password');
+            // jwt_payload 解碼後的 token content
+            // 登入時將 user.id 存入了 payload 的 sub(subject)
+            const admin = await Admin.findById(jwt_payload.sub);
 
-            if(!admin) {
+            if(admin) {
+                // if admin exists
+                return done(null, admin);
+            } else {
                 return done(null, false);
             }
-            
-            done(null, admin);
         } catch (error) {
-            done(error);
+            return done(error, false);
         }
-    });
+    }));
+
 };
 
 module.exports = configurePassport;

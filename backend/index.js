@@ -1,21 +1,26 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const connectDB = require('./config/database');
 const { initializeModels } = require('./models');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // passport.js
 const passport = require('passport');
 const configurePassport = require('./config/passport');
 
-dotenv.config();
-
 const app = express();
 
 // 1. 信任反向代理 
 app.set('trust proxy', 1);
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// passport setting - without session middleware
+configurePassport(passport);
+app.use(passport.initialize());
 
 async function initializeApp() {
   try {
@@ -31,9 +36,6 @@ async function initializeApp() {
   }
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 app.use(cors({
   origin: process.env.ADMIN_CLIENT_URL,
   credentials: true,
@@ -41,34 +43,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// session setting
-app.use(session({
-  secret: process.env.ADMIN_SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    touchAfter: 24 * 3600
-  }),
-  cookie: {
-    maxAge: 8 * 60 * 60 * 1000, // 8 小時（後台工作時間較長）
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none'
-    // No domain setting for cross-origin cookies
-  },
-  name: 'admin.sid'
-}));
-
-// passport setting - must be after session middleware
-configurePassport(passport);
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 // Routes
 const adminRouter = require('./routes/adminRouter');
+const authRouter = require('./routes/authRouter');
 app.use('/api/admin', adminRouter);
+app.use('/auth', authRouter);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running!' });
@@ -93,15 +73,6 @@ app.get('/health', (req, res) => {
   }
 });
 
-app.get('/api/admin/quick-test', (req, res) => {
-    res.json({
-        hasCookies: !!req.headers.cookie,
-        sessionID: req.sessionID,
-        isAuthenticated: req.isAuthenticated(),
-        userEmail: req.user?.email,
-        message: req.isAuthenticated() ? 'Authentication OK' : 'Not authenticated'
-    });
-});
 
 // 全域錯誤處理
 app.use((err, req, res, next) => {
