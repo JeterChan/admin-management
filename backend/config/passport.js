@@ -2,7 +2,6 @@ const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const { getModels } = require('../models');
-const { Admin } = getModels();
 
 const configurePassport = (passport) => {
     // local strategy - 登入驗證
@@ -11,6 +10,7 @@ const configurePassport = (passport) => {
         passwordField: 'password'
     }, async (email, password, done) => {
         try {
+            const { Admin } = getModels();
             const admin = await Admin.findOne({ email });
 
             if(!admin) {
@@ -35,6 +35,7 @@ const configurePassport = (passport) => {
 
     passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
+            const { Admin } = getModels();
             // jwt_payload 解碼後的 token content
             // 登入時將 user.id 存入了 payload 的 sub(subject)
             const admin = await Admin.findById(jwt_payload.sub);
