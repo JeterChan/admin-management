@@ -32,7 +32,7 @@ const statusMap = {
 };
 
 const OrderManagement: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, getAuthHeaders } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -53,10 +53,7 @@ const OrderManagement: React.FC = () => {
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
       const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/orders`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       });
 
       const orderData = await response.json();
@@ -138,10 +135,7 @@ const OrderManagement: React.FC = () => {
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
       const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/orders/${orderId}/status`, {
         method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: newStatus })
       });
 
