@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const result = await response.json();
 
-      if (response.ok && result.status === 'success' && result.token) {
+      if (response.ok && result.token) {
         const authUser: Admin = {
           adminId: result.admin.id,
           email: result.admin.email,
