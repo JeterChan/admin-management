@@ -30,6 +30,7 @@ const adminLogin = async (req, res, next) => {
             const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '3h'});
 
             return res.json({
+                status:'success',
                 admin:{
                     email:admin.email,
                 },
