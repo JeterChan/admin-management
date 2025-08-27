@@ -116,10 +116,15 @@ const OrderManagement: React.FC = () => {
     setFilteredOrders(filtered);
   }, [orders, statusFilter, searchTerm]);
 
+  // Filter orders when data or filters change
   useEffect(() => {
     filterOrders();
-    setCurrentPage(1); // Reset to first page when filters change
   }, [orders, statusFilter, searchTerm, filterOrders]);
+
+  // Reset to first page only when user changes filters (not when data updates)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchTerm]);
 
   // Calculate pagination values
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
