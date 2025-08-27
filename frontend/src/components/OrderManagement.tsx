@@ -51,7 +51,7 @@ const OrderManagement: React.FC = () => {
     setLoading(true);
     try {
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-      const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/orders`, {
+      const response = await fetch(`${REACT_APP_API_BASE_URL}/api/admin/orders`, {
         method: 'GET',
         headers: getAuthHeaders(),
       });
@@ -133,7 +133,7 @@ const OrderManagement: React.FC = () => {
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-      const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/orders/${orderId}/status`, {
+      const response = await fetch(`${REACT_APP_API_BASE_URL}/api/admin/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
         body: JSON.stringify({ status: newStatus })

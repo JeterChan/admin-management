@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-      const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/check`, {
+      const response = await fetch(`${REACT_APP_API_BASE_URL}/api/admin/check`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const REACT_APP_API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-      const response = await fetch(`${REACT_APP_API_BASE_URL}/admin/login`, {
+      const response = await fetch(`${REACT_APP_API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
