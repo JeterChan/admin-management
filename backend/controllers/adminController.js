@@ -39,6 +39,22 @@ const updateOrderStatus = async (req, res) => {
             });
         }
 
+        // Prevent changing from "shipped" back to "processing"
+        if (orderNeedToUpdate.status === 'shipped' && status === 'processing') {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Cannot change shipped order back to processing status'
+            });
+        }
+
+        // Prevent changing from "cancelled" to any other status
+        if (orderNeedToUpdate.status === 'cancelled' && (status === 'processing' || status === 'shipped')) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Cannot change cancelled order to other status'
+            });
+        }
+
         // if order exists, update status
         orderNeedToUpdate.status = status;
 

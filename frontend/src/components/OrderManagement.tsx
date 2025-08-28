@@ -43,6 +43,12 @@ const OrderManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    orderId: string;
+    newStatus: Order['status'];
+    currentStatus: Order['status'];
+  } | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -161,6 +167,63 @@ const OrderManagement: React.FC = () => {
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const handleStatusChange = (orderId: string, newStatus: Order['status'], currentStatus: Order['status']) => {
+    // Prevent changing from "shipped" back to "processing"
+    if (currentStatus === 'shipped' && newStatus === 'processing') {
+      alert('已出貨的訂單無法改回處理中狀態');
+      // Reset select element back to original value
+      const selectElements = document.querySelectorAll(`select[data-order-id="${orderId}"]`);
+      selectElements.forEach((select) => {
+        (select as HTMLSelectElement).value = currentStatus;
+      });
+      return;
+    }
+
+    // Prevent changing from "cancelled" to any other status
+    if (currentStatus === 'cancelled' && (newStatus === 'processing' || newStatus === 'shipped')) {
+      alert('已取消的訂單無法更改狀態');
+      // Reset select element back to original value
+      const selectElements = document.querySelectorAll(`select[data-order-id="${orderId}"]`);
+      selectElements.forEach((select) => {
+        (select as HTMLSelectElement).value = currentStatus;
+      });
+      return;
+    }
+
+    // If changing to "shipped" or "cancelled", show confirmation dialog
+    if (newStatus === 'shipped' || newStatus === 'cancelled') {
+      setPendingStatusChange({
+        orderId,
+        newStatus,
+        currentStatus
+      });
+      setShowConfirmDialog(true);
+    } else {
+      // For other status changes, update immediately
+      updateOrderStatus(orderId, newStatus);
+    }
+  };
+
+  const confirmStatusChange = async () => {
+    if (pendingStatusChange) {
+      await updateOrderStatus(pendingStatusChange.orderId, pendingStatusChange.newStatus);
+      setShowConfirmDialog(false);
+      setPendingStatusChange(null);
+    }
+  };
+
+  const cancelStatusChange = () => {
+    if (pendingStatusChange) {
+      // Reset select elements back to their original values by forcing a re-render
+      const selectElements = document.querySelectorAll(`select[data-order-id="${pendingStatusChange.orderId}"]`);
+      selectElements.forEach((select) => {
+        (select as HTMLSelectElement).value = pendingStatusChange.currentStatus;
+      });
+    }
+    setShowConfirmDialog(false);
+    setPendingStatusChange(null);
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
@@ -489,11 +552,12 @@ const OrderManagement: React.FC = () => {
                           <div className="flex items-center space-x-2">
                             <select
                               value={order.status}
-                              onChange={(e) => updateOrderStatus(order.id, e.target.value as Order['status'])}
+                              data-order-id={order.id}
+                              onChange={(e) => handleStatusChange(order.id, e.target.value as Order['status'], order.status)}
                               className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
-                              <option value="processing">處理中</option>
-                              <option value="shipped">已出貨</option>
+                              <option value="processing" disabled={order.status === 'shipped' || order.status === 'cancelled'}>處理中</option>
+                              <option value="shipped" disabled={order.status === 'cancelled'}>已出貨</option>
                               <option value="cancelled">取消</option>
                             </select>
                             <button 
@@ -577,8 +641,81 @@ const OrderManagement: React.FC = () => {
         <OrderDetail 
           order={selectedOrder} 
           onClose={closeOrderDetail}
-          onStatusUpdate={updateOrderStatus}
+          onStatusUpdate={handleStatusChange}
         />
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && pendingStatusChange && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mobile:max-w-sm">
+            {/* Dialog Header */}
+            <div className="flex items-center justify-between p-6 mobile:p-4 border-b border-gray-200">
+              <h3 className="text-lg mobile:text-base font-semibold text-gray-900">確認訂單狀態變更</h3>
+            </div>
+            
+            {/* Dialog Content */}
+            <div className="p-6 mobile:p-4">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex-shrink-0">
+                  <div className={`w-10 h-10 mobile:w-8 mobile:h-8 ${
+                    pendingStatusChange.newStatus === 'cancelled' ? 'bg-red-100' : 'bg-yellow-100'
+                  } rounded-full flex items-center justify-center`}>
+                    <Package className={`w-5 h-5 mobile:w-4 mobile:h-4 ${
+                      pendingStatusChange.newStatus === 'cancelled' ? 'text-red-600' : 'text-yellow-600'
+                    }`} />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm mobile:text-xs text-gray-600 leading-relaxed">
+                    <p className="mb-1">
+                      您確定要將訂單 <span className="font-semibold text-blue-600">#{pendingStatusChange.orderId}</span> 的狀態
+                    </p>
+                    <p>
+                      從 <span className="font-semibold text-gray-800">{statusMap[pendingStatusChange.currentStatus]}</span> 
+                      變更為 <span className={`font-semibold ${
+                        pendingStatusChange.newStatus === 'cancelled' ? 'text-red-600' : 'text-green-600'
+                      }`}>{statusMap[pendingStatusChange.newStatus]}</span> 嗎？
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={`${
+                pendingStatusChange.newStatus === 'cancelled' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'
+              } border rounded-lg p-3 mobile:p-2`}>
+                <p className={`text-xs mobile:text-xxs ${
+                  pendingStatusChange.newStatus === 'cancelled' ? 'text-red-800' : 'text-yellow-800'
+                }`}>
+                  ⚠️ {pendingStatusChange.newStatus === 'cancelled' 
+                    ? '訂單一旦標記為已取消，將無法再更改為其他狀態。'
+                    : '訂單一旦標記為已出貨，將無法輕易撤回。'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            {/* Dialog Actions */}
+            <div className="flex flex-col mobile:flex-col sm:flex-row justify-end space-y-3 mobile:space-y-2 sm:space-y-0 sm:space-x-3 p-6 mobile:p-4 border-t border-gray-200">
+              <button
+                onClick={cancelStatusChange}
+                className="flex-1 sm:flex-none px-4 py-2 mobile:px-3 mobile:py-1.5 text-sm mobile:text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              >
+                取消
+              </button>
+              <button
+                onClick={confirmStatusChange}
+                className={`flex-1 sm:flex-none px-4 py-2 mobile:px-3 mobile:py-1.5 text-sm mobile:text-xs font-medium text-white rounded-md transition-colors duration-200 ${
+                  pendingStatusChange.newStatus === 'cancelled' 
+                    ? 'bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500' 
+                    : 'bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500'
+                }`}
+              >
+                {pendingStatusChange.newStatus === 'cancelled' ? '確認取消' : '確認出貨'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

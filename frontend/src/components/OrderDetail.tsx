@@ -32,13 +32,13 @@ interface Order {
 interface OrderDetailProps {
   order: Order;
   onClose: () => void;
-  onStatusUpdate: (orderId: string, newStatus: Order['status']) => void;
+  onStatusUpdate: (orderId: string, newStatus: Order['status'], currentStatus: Order['status']) => void;
 }
 
 const statusMap = {
   processing: '處理中',
   shipped: '已出貨',
-  cancelled: '已取消'
+  cancelled: '取消'
 };
 
 const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose, onStatusUpdate }) => {
@@ -199,12 +199,12 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ order, onClose, onStatusUpdat
               <select
                 id="status-select"
                 value={order.status}
-                onChange={(e) => onStatusUpdate(order.id, e.target.value as Order['status'])}
+                onChange={(e) => onStatusUpdate(order.id, e.target.value as Order['status'], order.status)}
                 className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value="processing">處理中</option>
-                <option value="shipped">已出貨</option>
-                <option value="cancelled">已取消</option>
+                <option value="processing" disabled={order.status === 'shipped' || order.status === 'cancelled'}>處理中</option>
+                <option value="shipped" disabled={order.status === 'cancelled'}>已出貨</option>
+                <option value="cancelled">取消</option>
               </select>
             </div>
             
