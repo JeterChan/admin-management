@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import OrderDetail from './OrderDetail';
-import { Search, Filter, Package, User, Calendar, DollarSign, Eye, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Package, User, Calendar, DollarSign, Eye, LogOut, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 import './OrderManagement.css';
 
 interface Order {
@@ -42,10 +42,37 @@ const OrderManagement: React.FC = () => {
   const [showOrderDetail, setShowOrderDetail] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // Close mobile menu when clicking outside or on escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (isMobileMenuOpen && !target.closest('header')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isMobileMenuOpen]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -222,29 +249,65 @@ const OrderManagement: React.FC = () => {
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
+            {/* Logo/Title - Always visible */}
             <div className="flex items-center space-x-3">
-              <h1 className="text-3xl font-bold text-white">訂單管理系統</h1>
+              <h1 className="text-2xl mobile:text-xl tablet:text-2xl lg:text-3xl font-bold text-white">訂單管理系統</h1>
             </div>
-            <div className="flex items-center space-x-4">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <div className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg">
                 <User className="w-5 h-5 text-white" />
-                <span className="text-white font-medium">歡迎, {user?.email}</span>
+                <span className="text-white font-medium text-sm lg:text-base">歡迎, {user?.email}</span>
               </div>
               <button 
                 onClick={logout} 
-                className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm lg:text-base"
               >
                 <LogOut className="w-4 h-4" />
                 <span>登出</span>
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors duration-200"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Menu - Dropdown */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden mt-4 pt-4 border-t border-white/20">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2 bg-white/10 px-4 py-3 rounded-lg">
+                  <User className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium text-sm">歡迎, {user?.email}</span>
+                </div>
+                <button 
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="flex items-center justify-center space-x-2 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg transition-colors duration-200 text-sm font-medium"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>登出</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-center">
+      <div className="max-w-7xl mx-auto px-4 mobile:px-2 py-8 mobile:py-4">
+        <div className="bg-white rounded-xl shadow-lg p-6 mobile:p-4 mb-8 mobile:mb-4">
+          {/* Desktop Layout - Column */}
+          <div className="hidden md:flex flex-col lg:flex-row gap-6 items-center">
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -266,6 +329,37 @@ const OrderManagement: React.FC = () => {
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm transition-colors duration-200"
               >
                 <option value="all">全部狀態</option>
+                <option value="processing">處理中</option>
+                <option value="shipped">已出貨</option>
+                <option value="cancelled">取消</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Mobile Layout - Side by Side */}
+          <div className="md:hidden flex gap-2">
+            {/* Search Bar - Takes most space */}
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="搜尋客戶姓名或訂單編號..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-colors duration-200"
+              />
+            </div>
+            
+            {/* Status Filter - Right side */}
+            <div className="flex items-center">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-2 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-xs transition-colors duration-200 min-w-20"
+              >
+                <option value="all">全部</option>
                 <option value="processing">處理中</option>
                 <option value="shipped">已出貨</option>
                 <option value="cancelled">取消</option>
