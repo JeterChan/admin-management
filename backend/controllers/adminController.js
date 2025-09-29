@@ -1,16 +1,20 @@
-const { getModels } = require('../models');
-
-// 回傳所有訂單
+// 回傳所有訂單 - 從核心服務 API 取得
 const getAllOrders = async (req, res) => {
     try {
-        const { Order } = getModels();
-        const orders = await Order.find()
-            .populate('orderItems', 'productName price quantity subtotal')
-            .sort({ createdAt: -1 });
+        // TODO: 呼叫核心服務的 API 來取得訂單資料
+        // const coreServiceResponse = await fetch(`${process.env.CORE_SERVICE_URL}/api/orders`, {
+        //     headers: {
+        //         'Authorization': req.headers.authorization,
+        //         'Content-Type': 'application/json'
+        //     }
+        // });
+        // const orders = await coreServiceResponse.json();
 
+        // 暫時返回空陣列，直到核心服務 API 完成
         return res.status(200).json({
             status: 'success',
-            data: orders
+            data: [],
+            message: 'Orders API will be connected to core service'
         });
     } catch(error) {
         console.error('❌ [Admin] Error fetching orders:', error);
@@ -21,52 +25,34 @@ const getAllOrders = async (req, res) => {
     }
 };
 
-// 更新訂單狀態
+// 更新訂單狀態 - 透過核心服務 API
 const updateOrderStatus = async (req, res) => {
-    // api/admin/{orderId}/status -> PATCH method
-    const { orderId } = req.params; // orderNumber
+    const { orderId } = req.params;
     const { status } = req.body;
 
     try {
-        // get order by orderNumber
-        const { Order } = getModels();
-        const orderNeedToUpdate = await Order.findOne({ orderNumber: orderId });
+        // TODO: 呼叫核心服務的 API 來更新訂單狀態
+        // const coreServiceResponse = await fetch(`${process.env.CORE_SERVICE_URL}/api/orders/${orderId}/status`, {
+        //     method: 'PATCH',
+        //     headers: {
+        //         'Authorization': req.headers.authorization,
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({ status })
+        // });
+        
+        // const result = await coreServiceResponse.json();
+        // return res.status(coreServiceResponse.status).json(result);
 
-        if(!orderNeedToUpdate) {
-            return res.status(404).json({
-                status:'fail',
-                message:'Order not found'
-            });
-        }
-
-        // Prevent changing from "shipped" back to "processing"
-        if (orderNeedToUpdate.status === 'shipped' && status === 'processing') {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'Cannot change shipped order back to processing status'
-            });
-        }
-
-        // Prevent changing from "cancelled" to any other status
-        if (orderNeedToUpdate.status === 'cancelled' && (status === 'processing' || status === 'shipped')) {
-            return res.status(400).json({
-                status: 'fail',
-                message: 'Cannot change cancelled order to other status'
-            });
-        }
-
-        // if order exists, update status
-        orderNeedToUpdate.status = status;
-
-        await orderNeedToUpdate.save();
+        // 暫時返回成功訊息，直到核心服務 API 完成
         return res.status(200).json({
             status: 'success',
-            message: 'Order status updated successfully'
+            message: 'Order status update API will be connected to core service'
         });
     } catch (error) {
         console.error('❌ [Admin] Error updating order status:', error);
         return res.status(500).json({
-            status: false,
+            status: 'error',
             message: 'Update order status failed'
         });
     }

@@ -1,33 +1,7 @@
-const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const { getModels } = require('../models');
 
 const configurePassport = (passport) => {
-    // local strategy - 登入驗證
-    passport.use('local', new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password'
-    }, async (email, password, done) => {
-        try {
-            const { Admin } = getModels();
-            const admin = await Admin.findOne({ email });
-
-            if(!admin) {
-                return done(null, false, { message: 'Admin not found' });
-            }
-
-            const isMatch = await admin.comparePassword(password);
-            if(!isMatch) {
-                return done(null, false, { message: 'Invalid password'});
-            }
-
-            return done(null, admin);
-        } catch (error) {
-            return done(error);
-        }
-    }));
-
     // Jwt strategy - API 授權
     const opts = {};
     opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken(); // from Authorization header get Bearer Token
@@ -35,14 +9,15 @@ const configurePassport = (passport) => {
 
     passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
-            const { Admin } = getModels();
-            // jwt_payload 解碼後的 token content
-            // 登入時將 user.id 存入了 payload 的 sub(subject)
-            const admin = await Admin.findById(jwt_payload.sub);
-
-            if(admin) {
-                // if admin exists
-                return done(null, admin);
+            // 驗證 token 的有效性，不再依賴本地資料庫
+            // 這裡可以進一步呼叫核心服務來驗證使用者
+            if(jwt_payload.sub) {
+                // 簡單的 token 驗證，返回基本的使用者資訊
+                const user = {
+                    _id: jwt_payload.sub,
+                    email: jwt_payload.email || 'admin' // 可從 token 中取得或設定預設值
+                };
+                return done(null, user);
             } else {
                 return done(null, false);
             }

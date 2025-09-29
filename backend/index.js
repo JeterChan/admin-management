@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/database');
-const { initializeModels } = require('./models');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -24,12 +22,8 @@ app.use(passport.initialize());
 
 async function initializeApp() {
   try {
-    // 1. connect database
-    const mongoose = await connectDB();
-
-    // 2. 初始化 models
-    initializeModels(mongoose);
-
+    // 應用程式初始化 (不再需要直接連接資料庫)
+    console.log('✅ Application initialized without direct database connection');
   } catch (error) {
     console.error('❌ Failed to initialize app:', error);
     process.exit(1);
@@ -60,8 +54,7 @@ app.get('/health', (req, res) => {
     const healthCheck = {
       status: 'OK',
       timestamp: new Date().toISOString(),
-      service: 'admin-management', // 🔥 不同的服務名稱
-      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+      service: 'admin-management'
     };
     
     res.status(200).json(healthCheck);
